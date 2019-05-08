@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "716745391922",
+    "firebase_url": "https://aifoto-b08be.firebaseio.com",
+    "project_id": "aifoto-b08be",
+    "storage_bucket": "aifoto-b08be.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:716745391922:android:9d7b8bb20ed70f61",
+        "android_client_info": {
+          "package_name": "com.project.aifoto"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "716745391922-s4f0rmkhv4b1587g2lusa54di8ltk9ad.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.project.aifoto",
+            "certificate_hash": "e9d5b021faa74cd14e8ad2bfa35722f8bed7e635"
+          }
+        },
+        {
+          "client_id": "716745391922-gjvnl0lcjcbh2da0j6q4ig4cai43pdi7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGjd8razZWiFvUtPf-aG1-k77Jlu5A04U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "716745391922-gjvnl0lcjcbh2da0j6q4ig4cai43pdi7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

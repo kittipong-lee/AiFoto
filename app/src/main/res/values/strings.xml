@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">AiFoto</string>
+    <string name="pass_hint">Enter Password</string>
+    <string name="email_hint">Enter E-mail</string>
+    <string name="login_log_desc">Login Logo</string>
+    <string name="login_btn_text">Login to account</string>
+    <string name="login_reg_btn_text">Don\'t have an account yet? Create One</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="action_search_text">Search</string>
+    <string name="account_setting">Account Setting</string>
+    <string name="action_logout_text">Logout</string>
+    <string name="reg_btn_text">Create new account</string>
+    <string name="reg_login_text">Already have an account?</string>
+    <string name="reg_confirm_password">Confirm Password...</string>
+    <string name="setup_name_hint">Your Name...</string>
+    <string name="setup_btn_name_text">SAVE</string>
+    <string name="post_desc_hint">Add Description...</string>
+    <string name="new_post_btn_hint">Post...</string>
+    <string name="bottom_home_text">Home</string>
+    <string name="bottom_noti_text">Notification</string>
+    <string name="bottom_account_text">Account</string>
+
+
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="textview_comment">"Comments : "</string>
+    <string name="edit_text_comment_field">Type Your Comment...</string>
+    <string name="edit_text_type_comment_field">What\'s on Your Mind...</string>
+    <string name="default_notification_channel_id">CH_01</string>
+
+</resources>
