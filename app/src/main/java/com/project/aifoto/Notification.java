@@ -6,16 +6,27 @@ public class Notification {
 
     private String comment_owner_id;
     private String post_id;
-    private Date timestamp;private String post_owner_id;
+    private Date timestamp;
+    private String post_owner_id;
+    private String post_desc;
 
     public Notification() {
     }
 
-    public Notification(String comment_owner_id, String post_id, Date timestamp, String post_owner_id) {
+    public Notification(String comment_owner_id, String post_id, Date timestamp, String post_owner_id, String post_desc) {
         this.comment_owner_id = comment_owner_id;
         this.post_id = post_id;
         this.timestamp = timestamp;
         this.post_owner_id = post_owner_id;
+        this.post_desc = post_desc;
+    }
+
+    public String getPost_desc() {
+        return post_desc;
+    }
+
+    public void setPost_desc(String post_desc) {
+        this.post_desc = post_desc;
     }
 
     public String getComment_owner_id() {

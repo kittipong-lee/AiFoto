@@ -10,8 +10,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -43,6 +46,9 @@ public class CommentsActivity extends AppCompatActivity {
 
     private String postId;
     private String postOwnerId;
+    private String postDesc;
+    private String postImageThumbUrl;
+
     private String currentUserId;
 
     private FirebaseFirestore firebaseFirestore;
@@ -53,6 +59,8 @@ public class CommentsActivity extends AppCompatActivity {
 
     private RecyclerView recyclerViewCommentList;
     private CommentsRecyclerAdapter commentsRecyclerAdapter;
+    private ImageView imageViewCommentPostImage;
+    private TextView imageViewCommentPostDesc;
 
     private ProgressBar progressBarComment;
 
@@ -70,8 +78,13 @@ public class CommentsActivity extends AppCompatActivity {
 
         postId = getIntent().getStringExtra("postId");
         postOwnerId = getIntent().getStringExtra("user_id");
+        postDesc = getIntent().getStringExtra("post_desc");
+        postImageThumbUrl = getIntent().getStringExtra("post_image_url");
+
 
         progressBarComment = findViewById(R.id.progressBarComment);
+        imageViewCommentPostImage = findViewById(R.id.imageViewCommentPostImage);
+        imageViewCommentPostDesc = findViewById(R.id.textViewCommentPostDesc);
 
         editTextCommentField = findViewById(R.id.editTextCommentField);
         imageViewCommentPostBtn = findViewById(R.id.imageViewCommentPost);
@@ -87,6 +100,7 @@ public class CommentsActivity extends AppCompatActivity {
         recyclerViewCommentList.setAdapter(commentsRecyclerAdapter);
 
         initializeFirebaseAll();
+        initializePostInfo();
         setOnClickListenerForCommentField();
 
         //Recycler View Firebase Comment List
@@ -118,20 +132,31 @@ public class CommentsActivity extends AppCompatActivity {
 
                         }
                     }
-
-
                 }
             }
         });
-
-
     }
 
     private void initializeFirebaseAll() {
         firebaseFirestore = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
-
         currentUserId = firebaseAuth.getCurrentUser().getUid();
+    }
+
+    private void initializePostInfo(){
+        initializePostImage();
+        initializePostDesc();
+    }
+
+    private void initializePostDesc() {
+        imageViewCommentPostDesc.setText(postDesc);
+    }
+
+    private void initializePostImage(){
+        RequestOptions placeHolderOptions = new RequestOptions();
+        placeHolderOptions.placeholder(R.drawable.image_placeholder);
+
+        Glide.with(getApplicationContext()).applyDefaultRequestOptions(placeHolderOptions).load(postImageThumbUrl).into(imageViewCommentPostImage);
     }
 
     private void setOnClickListenerForCommentField() {
@@ -155,8 +180,8 @@ public class CommentsActivity extends AppCompatActivity {
                                 Toast.makeText(CommentsActivity.this, "Error Comments : "+task.getException().getMessage(),
                                         Toast.LENGTH_LONG).show();
                             }else {
-
                                 editTextCommentField.setText("");
+                                progressBarComment.setVisibility(View.INVISIBLE);
                                 createNotification(postId, currentUserId);
                             }
                         }
@@ -172,8 +197,8 @@ public class CommentsActivity extends AppCompatActivity {
         notificationMap.put("comment_owner_id", currentUserId);
         notificationMap.put("post_id", postId);
         notificationMap.put("post_owner_id", postOwnerId);
+        notificationMap.put("post_desc", postDesc);
         notificationMap.put("timestamp", FieldValue.serverTimestamp());
-
 
         storeMaptoFirebase(notificationMap,path);
     }
@@ -183,13 +208,11 @@ public class CommentsActivity extends AppCompatActivity {
             @Override
             public void onSuccess(DocumentReference documentReference) {
                 Toast.makeText(getApplicationContext(), "Notification is stored to Firebase", Toast.LENGTH_LONG).show();
-                progressBarComment.setVisibility(View.INVISIBLE);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getApplicationContext(), "Error "+e.getMessage(), Toast.LENGTH_LONG).show();
-                progressBarComment.setVisibility(View.INVISIBLE);
             }
         });
     }

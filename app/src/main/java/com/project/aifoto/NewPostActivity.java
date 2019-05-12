@@ -120,7 +120,7 @@ public class NewPostActivity extends AppCompatActivity {
         if(!TextUtils.isEmpty(desc) && imagePostURI!=null){
             progressBarNewPost.setVisibility(View.VISIBLE);
             final String randomName = random();
-            final StorageReference filePath = storageReference.child("post_images").child(randomName+".jpg");
+            final StorageReference filePath = storageReference.child("post_images").child(randomName+getString(R.string.image_format));
 
             filePath.putFile(imagePostURI).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -194,9 +194,6 @@ public class NewPostActivity extends AppCompatActivity {
 
                                     }
                                 });
-
-
-
 
                             }
                         }).addOnFailureListener(new OnFailureListener() {

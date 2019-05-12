@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -19,6 +20,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -45,6 +47,7 @@ public class NotificationFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    private DocumentSnapshot lastVisible;
 
     private RecyclerView recyclerViewNotificationList;
     private List<Notification> notificationList;
@@ -56,6 +59,8 @@ public class NotificationFragment extends Fragment {
     private FirebaseFirestore firebaseFirestore;
 
     private String currentUserId;
+
+    private ViewGroup container;
 
     public NotificationFragment() {
         // Required empty public constructor
@@ -92,6 +97,9 @@ public class NotificationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        this.container = container;
+
+
         View view = inflater.inflate(R.layout.fragment_notification, container, false);
 
         recyclerViewNotificationList = view.findViewById(R.id.recyclerViewNotificationList);
@@ -113,39 +121,106 @@ public class NotificationFragment extends Fragment {
 
     private void loadData() {
         if(FirebaseAuth.getInstance().getCurrentUser()!=null) {
-            String path = "Users/" + currentUserId + "/Notifications";
-            firebaseFirestore.collection(path).addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
+
+            notificationSenderList.clear();
+            notificationList.clear();
+
+            final String path = "Users/" + currentUserId + "/Notifications";
+
+            recyclerViewNotificationList.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
-                public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
 
-                    if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
-                        notificationList.clear();
+                    Boolean reachedBottom = !recyclerView.canScrollVertically(1);
+                    if(reachedBottom){
 
-                        for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-
-                            final Notification notifications = doc.getDocument().toObject(Notification.class);
-                            String comment_owner_id = notifications.getComment_owner_id();
-
-                            //if(comment_owner_id.equals(currentUserId)) {
-                                //String userInfoPath = "Users/"+currentUserId;
-                                firebaseFirestore.collection("Users").document(comment_owner_id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        if(task.isSuccessful()){
-                                            User notificationSender = task.getResult().toObject(User.class);
-                                            notificationSenderList.add(notificationSender);
-                                            notificationList.add(notifications);
-                                            notificationRecyclerAdapter.notifyDataSetChanged();
-                                        }
-                                    }
-                                });
-
-                            //}
-                        }
+                        String desc = lastVisible.getString("desc");
+                        Toast.makeText(container.getContext(),"Reached : "+desc, Toast.LENGTH_LONG).show();
+                        loadMoreNotification(path);
                     }
+
                 }
             });
+
+            Query firstQuery = firebaseFirestore.collection(path).orderBy("timestamp",Query.Direction.ASCENDING).limit(10);
+
+            loadNotification(firstQuery);
+
+//            firebaseFirestore.collection(path).addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
+//                @Override
+//                public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+//
+//                    if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
+//                        notificationList.clear();
+//
+//                        for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+//
+//                            final Notification notifications = doc.getDocument().toObject(Notification.class);
+//                            String comment_owner_id = notifications.getComment_owner_id();
+//
+//                            //if(comment_owner_id.equals(currentUserId)) {
+//                                //String userInfoPath = "Users/"+currentUserId;
+//                                firebaseFirestore.collection("Users").document(comment_owner_id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                                    @Override
+//                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                                        if(task.isSuccessful()){
+//                                            User notificationSender = task.getResult().toObject(User.class);
+//                                            notificationSenderList.add(notificationSender);
+//                                            notificationList.add(notifications);
+//                                            notificationRecyclerAdapter.notifyDataSetChanged();
+//                                        }
+//                                    }
+//                                });
+//
+//                            //}
+//                        }
+//                    }
+//                }
+//            });
         }
+    }
+
+    private void loadNotification(Query nextQuery) {
+        nextQuery.addSnapshotListener(getActivity(), new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
+        //           notificationList.clear();
+                    lastVisible = queryDocumentSnapshots.getDocuments()
+                            .get(queryDocumentSnapshots.size() - 1);
+                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+
+                        final Notification notifications = doc.getDocument().toObject(Notification.class);
+                        String comment_owner_id = notifications.getComment_owner_id();
+
+                        //if(comment_owner_id.equals(currentUserId)) {
+                        //String userInfoPath = "Users/"+currentUserId;
+                        firebaseFirestore.collection("Users").document(comment_owner_id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if(task.isSuccessful()){
+                                    User notificationSender = task.getResult().toObject(User.class);
+                                    notificationSenderList.add(0,notificationSender);
+                                    notificationList.add(0,notifications);
+                                    notificationRecyclerAdapter.notifyDataSetChanged();
+                                }
+                            }
+                        });
+
+                        //}
+                    }
+                }
+            }
+        });
+    }
+
+    private void loadMoreNotification(String path) {
+        Query nextQuery = firebaseFirestore.collection(path)
+                .orderBy("timestamp",Query.Direction.ASCENDING)
+                .startAfter(lastVisible)
+                .limit(10);
+        loadNotification(nextQuery);
     }
 
     // TODO: Rename method, update argument and hook method into UI event

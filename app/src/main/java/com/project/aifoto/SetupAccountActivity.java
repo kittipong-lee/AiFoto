@@ -69,10 +69,7 @@ public class SetupAccountActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup_account);
-
         initialize();
-
-
     }
 
     private void initialize() {
@@ -102,8 +99,8 @@ public class SetupAccountActivity extends AppCompatActivity {
         firebaseFirestore.collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
-                    if(task.getResult().exists()){
+                if (task.isSuccessful()) {
+                    if (task.getResult().exists()) {
                         String name = task.getResult().getString("name");
                         String image = task.getResult().getString("image");
 
@@ -116,15 +113,14 @@ public class SetupAccountActivity extends AppCompatActivity {
 
                         Glide.with(SetupAccountActivity.this).setDefaultRequestOptions(placeHolderRequest).load(image).into(setupDefaultImage);
 
-                        Toast.makeText(SetupAccountActivity.this,"Data Exists ",Toast.LENGTH_LONG).show();
+                        Toast.makeText(SetupAccountActivity.this, "Data Exists ", Toast.LENGTH_LONG).show();
 
-                    }else{
-                        Toast.makeText(SetupAccountActivity.this,"Data Doesn't Exist ",Toast.LENGTH_LONG).show();
-
+                    } else {
+                        Toast.makeText(SetupAccountActivity.this, "Data Doesn't Exist ", Toast.LENGTH_LONG).show();
                     }
-                }else {
+                } else {
                     String error = task.getException().getMessage();
-                    Toast.makeText(SetupAccountActivity.this,"Firestore Error: "+ error,Toast.LENGTH_LONG).show();
+                    Toast.makeText(SetupAccountActivity.this, "Firestore Error: " + error, Toast.LENGTH_LONG).show();
 
                 }
                 progressBarSetupAccount.setVisibility(View.INVISIBLE);
@@ -136,19 +132,19 @@ public class SetupAccountActivity extends AppCompatActivity {
     public void imageClick(View view) {
 
         //Check if user uses Mashmello or higher version
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
-            if(ContextCompat.checkSelfPermission(SetupAccountActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED){
-                Toast.makeText(SetupAccountActivity.this,"Permission Denied", Toast.LENGTH_LONG).show();
-                ActivityCompat.requestPermissions(SetupAccountActivity.this , new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
-            }else{
-               // Toast.makeText(SetupAccountActivity.this,"You already have a permission", Toast.LENGTH_LONG).show();
+            if (ContextCompat.checkSelfPermission(SetupAccountActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(SetupAccountActivity.this, "Permission Denied", Toast.LENGTH_LONG).show();
+                ActivityCompat.requestPermissions(SetupAccountActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+            } else {
+                // Toast.makeText(SetupAccountActivity.this,"You already have a permission", Toast.LENGTH_LONG).show();
 
                 pickAndCropImage();
 
             }
-        } else{
+        } else {
             pickAndCropImage();
         }
     }
@@ -157,7 +153,7 @@ public class SetupAccountActivity extends AppCompatActivity {
         // start picker to get image for cropping and then use the image in cropping activity
         CropImage.activity()
                 .setGuidelines(CropImageView.Guidelines.ON)
-                .setAspectRatio(1,1)
+                .setAspectRatio(1, 1)
                 .start(SetupAccountActivity.this);
     }
 
@@ -165,7 +161,7 @@ public class SetupAccountActivity extends AppCompatActivity {
     //
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode,resultCode,data);
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
 
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
@@ -191,20 +187,14 @@ public class SetupAccountActivity extends AppCompatActivity {
 
         if (!TextUtils.isEmpty(userName) && mainImageUri != null) {
             progressBarSetupAccount.setVisibility(View.VISIBLE);
-            if(isProfileImageChanged) {
-
-
-
-
+            if (isProfileImageChanged) {
 
                 imagePath.putFile(mainImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 
                         if (task.isSuccessful()) {
-
-                            uploadToFirestore(task,imagePath);
-
+                            uploadToFirestore(task, imagePath);
 
                         } else {
                             String error = task.getException().getMessage();
@@ -214,8 +204,8 @@ public class SetupAccountActivity extends AppCompatActivity {
                         progressBarSetupAccount.setVisibility(View.INVISIBLE);
                     }
                 });
-            }else{
-                uploadToFirestore(null,imagePath);
+            } else {
+                uploadToFirestore(null, imagePath);
             }
         }
     }
@@ -228,22 +218,22 @@ public class SetupAccountActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Uri uri) {
 
-                if(task!=null) {
+                if (task != null) {
                     downloadUri = uri.toString();
-                }else{
+                } else {
                     downloadUri = mainImageUri.toString();
                 }
                 Toast.makeText(SetupAccountActivity.this, downloadUri, Toast.LENGTH_LONG).show();
 
 
-                FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener( SetupAccountActivity.this,  new OnSuccessListener<InstanceIdResult>() {
+                FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
                     @Override
                     public void onSuccess(InstanceIdResult instanceIdResult) {
                         String token_id = instanceIdResult.getToken();
                         Log.e("Token", token_id);
 
-                        Map<String,String> userMap = new HashMap<>();
-                        userMap.put("name",userName);
+                        Map<String, String> userMap = new HashMap<>();
+                        userMap.put("name", userName);
                         userMap.put("image", downloadUri);
                         userMap.put("token_id", token_id);
 
@@ -252,15 +242,15 @@ public class SetupAccountActivity extends AppCompatActivity {
                         firebaseFirestore.collection("Users").document(userId).set(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-                                if(task.isSuccessful()){
+                                if (task.isSuccessful()) {
 
-                                    Toast.makeText(SetupAccountActivity.this,"Setting Updated",Toast.LENGTH_LONG).show();
+                                    Toast.makeText(SetupAccountActivity.this, "Setting Updated", Toast.LENGTH_LONG).show();
                                     Intent mainIntent = new Intent(SetupAccountActivity.this, MainActivity.class);
                                     startActivity(mainIntent);
                                     finish();
-                                } else{
+                                } else {
                                     String error = task.getException().getMessage();
-                                    Toast.makeText(SetupAccountActivity.this,"Firestore Error: "+ error,Toast.LENGTH_LONG).show();
+                                    Toast.makeText(SetupAccountActivity.this, "Firestore Error: " + error, Toast.LENGTH_LONG).show();
 
                                 }
                                 progressBarSetupAccount.setVisibility(View.INVISIBLE);
@@ -270,12 +260,11 @@ public class SetupAccountActivity extends AppCompatActivity {
                 });
 
 
-
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(SetupAccountActivity.this,"Mai dai na", Toast.LENGTH_LONG).show();
+                Toast.makeText(SetupAccountActivity.this, "Mai dai na", Toast.LENGTH_LONG).show();
             }
         });
     }

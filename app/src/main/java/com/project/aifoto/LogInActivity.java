@@ -83,7 +83,6 @@ public class LogInActivity extends AppCompatActivity {
 
         if (!TextUtils.isEmpty(loginEmail) && !TextUtils.isEmpty(loginPW)) {
 
-
             mAuth.signInWithEmailAndPassword(loginEmail, loginPW).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
@@ -91,7 +90,7 @@ public class LogInActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         sendToMainActivity();
 
-                        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener( LogInActivity.this,  new OnSuccessListener<InstanceIdResult>() {
+                        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(LogInActivity.this, new OnSuccessListener<InstanceIdResult>() {
                             @Override
                             public void onSuccess(InstanceIdResult instanceIdResult) {
                                 String token_id = instanceIdResult.getToken();
@@ -126,8 +125,6 @@ public class LogInActivity extends AppCompatActivity {
         startActivity(regIntent);
         //finish();
     }
-
-
 
 
 }

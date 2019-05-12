@@ -121,7 +121,7 @@ public class HomeFragment extends Fragment {
         if(currentUser!=null) {
 
             firebaseFirestore = FirebaseFirestore.getInstance();
-            Query firstQuery = firebaseFirestore.collection("Posts").orderBy("timestamp",Query.Direction.DESCENDING).limit(5);
+            Query firstQuery = firebaseFirestore.collection("Posts").orderBy("timestamp",Query.Direction.ASCENDING).limit(5);
 
             viewPostList.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
@@ -147,12 +147,13 @@ public class HomeFragment extends Fragment {
 
                     if (queryDocumentSnapshots != null&&!queryDocumentSnapshots.isEmpty()) {
 
+                        postList.clear();
+                        userList.clear();
                         if(isFirstPageFirstTime) {
                             // Get the last visible document
                             lastVisible = queryDocumentSnapshots.getDocuments()
                                     .get(queryDocumentSnapshots.size() - 1);
-                            postList.clear();
-                            userList.clear();
+
                         }
 
                         for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
@@ -185,16 +186,11 @@ public class HomeFragment extends Fragment {
                                         }
                                     }
                                 });
-
-
-
                             }
                         }
                         isFirstPageFirstTime = false;
 
                     }
-
-
                 }
             });
 
@@ -205,7 +201,7 @@ public class HomeFragment extends Fragment {
     public void loadMorePost(){
 
         Query nextQuery = firebaseFirestore.collection("Posts")
-                .orderBy("timestamp",Query.Direction.DESCENDING)
+                .orderBy("timestamp",Query.Direction.ASCENDING)
                 .startAfter(lastVisible)
                 .limit(5);
 
@@ -218,6 +214,7 @@ public class HomeFragment extends Fragment {
                     // Get the last visible document
                     lastVisible = queryDocumentSnapshots.getDocuments()
                             .get(queryDocumentSnapshots.size() - 1);
+
                     for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
                         if (doc.getType() == DocumentChange.Type.ADDED) {
                             String postId = doc.getDocument().getId();
@@ -229,15 +226,10 @@ public class HomeFragment extends Fragment {
                                     if(task.isSuccessful()){
 
                                         User user = task.getResult().toObject(User.class);
-
-
                                         userList.add(0,user);
                                         postList.add(0,myPost);
 
-
                                         postRecyclerAdapter.notifyDataSetChanged();
-
-
                                     }
                                 }
                             });

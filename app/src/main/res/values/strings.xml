@@ -4,7 +4,7 @@
     <string name="email_hint">Enter E-mail</string>
     <string name="login_log_desc">Login Logo</string>
     <string name="login_btn_text">Login to account</string>
-    <string name="login_reg_btn_text">Don\'t have an account yet? Create One</string>
+    <string name="login_reg_btn_text">Create a new account</string>
     <string name="title_activity_maps">Map</string>
     <string name="action_search_text">Search</string>
     <string name="account_setting">Account Setting</string>
@@ -28,5 +28,6 @@
     <string name="edit_text_comment_field">Type Your Comment...</string>
     <string name="edit_text_type_comment_field">What\'s on Your Mind...</string>
     <string name="default_notification_channel_id">CH_01</string>
+    <string name="image_format">.jpg</string>
 
 </resources>
